@@ -14,6 +14,7 @@ def test_parse_prompt_content_with_valid_data() -> None:
         "text": "Build this page",
         "images": ["img1", "img2"],
         "videos": ["vid1"],
+        "dom": "",
     }
 
 
@@ -30,13 +31,14 @@ def test_parse_prompt_content_filters_invalid_media_types() -> None:
         "text": "Prompt",
         "images": ["img1", "img2"],
         "videos": ["vid1", "vid2"],
+        "dom": "",
     }
 
 
 def test_parse_prompt_content_defaults_for_invalid_payload() -> None:
-    assert parse_prompt_content(None) == {"text": "", "images": [], "videos": []}
-    assert parse_prompt_content("bad") == {"text": "", "images": [], "videos": []}
-    assert parse_prompt_content({"text": 1}) == {"text": "", "images": [], "videos": []}
+    assert parse_prompt_content(None) == {"text": "", "images": [], "videos": [], "dom": ""}
+    assert parse_prompt_content("bad") == {"text": "", "images": [], "videos": [], "dom": ""}
+    assert parse_prompt_content({"text": 1}) == {"text": "", "images": [], "videos": [], "dom": ""}
 
 
 def test_parse_prompt_history_with_valid_entries() -> None:
