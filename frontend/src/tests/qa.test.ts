@@ -217,7 +217,6 @@ class App {
       openAiApiKey: "test-openai-key",
       openAiBaseURL: null,
       anthropicApiKey: "test-anthropic-key",
-      screenshotOneApiKey: "test-screenshotone-key",
       isImageGenerationEnabled: true,
       editorTheme: "cobalt",
       generatedCodeConfig: this.stack,
