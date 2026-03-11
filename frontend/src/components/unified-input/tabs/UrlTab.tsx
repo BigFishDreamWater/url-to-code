@@ -7,11 +7,11 @@ import OutputSettingsSection from "../../settings/OutputSettingsSection";
 import { Stack } from "../../../lib/stacks";
 
 interface Props {
-  screenshotOneApiKey: string | null;
   doCreate: (
     urls: string[],
     inputMode: "image" | "video",
     textPrompt?: string,
+    dom?: string,
   ) => void;
   stack: Stack;
   setStack: (stack: Stack) => void;
@@ -21,36 +21,28 @@ function isFigmaUrl(url: string): boolean {
   return /^https?:\/\/([\w.-]*\.)?figma\.com\//i.test(url.trim());
 }
 
-function UrlTab({ doCreate, screenshotOneApiKey, stack, setStack }: Props) {
+function UrlTab({ doCreate, stack, setStack }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [referenceUrl, setReferenceUrl] = useState("");
 
   async function takeScreenshot() {
-    const trimmedReferenceUrl = referenceUrl.trim();
+    const trimmedUrl = referenceUrl.trim();
 
-    if (!screenshotOneApiKey) {
-      toast.error(
-        "Please add a ScreenshotOne API key in Settings. You can also upload screenshots directly in the Upload tab.",
-        { duration: 6000 },
-      );
-      return;
-    }
-
-    if (!trimmedReferenceUrl) {
+    if (!trimmedUrl) {
       toast.error("Please enter a URL");
       return;
     }
 
-    if (trimmedReferenceUrl.toLowerCase().startsWith("file://")) {
+    if (trimmedUrl.toLowerCase().startsWith("file://")) {
       toast.error(
-        "file:// URLs can't be screenshot. If you're trying to import a local file, please use the Import tab.",
+        "file:// URLs are not supported. Use the Upload tab for local files.",
       );
       return;
     }
 
-    if (isFigmaUrl(trimmedReferenceUrl)) {
+    if (isFigmaUrl(trimmedUrl)) {
       toast.error(
-        "Direct Figma import is not supported. Take a screenshot of your design or export the artboards as images, then use the Upload tab.",
+        "Figma URLs are not supported. Export as images and use Upload tab.",
         { duration: 6000 },
       );
       return;
@@ -60,119 +52,81 @@ function UrlTab({ doCreate, screenshotOneApiKey, stack, setStack }: Props) {
       setIsLoading(true);
       const response = await fetch(`${HTTP_BACKEND_URL}/api/screenshot`, {
         method: "POST",
-        body: JSON.stringify({
-          url: trimmedReferenceUrl,
-          apiKey: screenshotOneApiKey,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
+        body: JSON.stringify({ url: trimmedUrl }),
+        headers: { "Content-Type": "application/json" },
       });
 
       if (!response.ok) {
-        throw new Error("Failed to capture screenshot");
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to capture screenshot");
       }
 
       const res = await response.json();
-      doCreate([res.url], "image");
+      doCreate([res.url], "image", "", res.dom || "");
     } catch (error) {
       console.error(error);
-      toast.error("Failed to capture screenshot. Check console for details.");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to capture screenshot",
+      );
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="w-full max-w-lg">
-        <div className="flex flex-col items-center gap-6 p-8 border border-gray-200 dark:border-zinc-700 rounded-xl bg-gray-50/50 dark:bg-zinc-900/50">
-          <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-gray-400 dark:text-zinc-500"
-            >
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-            </svg>
-          </div>
-
-          <div className="text-center">
-            <h3 className="text-gray-700 dark:text-zinc-200 font-medium">Screenshot from URL</h3>
-          </div>
-
-          <div className="w-full space-y-3">
-            <Input
-              placeholder="https://"
-              onChange={(e) => setReferenceUrl(e.target.value)}
-              value={referenceUrl}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !isLoading) {
-                  takeScreenshot();
-                }
-              }}
-              className="w-full"
-              data-testid="url-input"
-            />
-            {isFigmaUrl(referenceUrl) && (
-              <p className="text-xs text-amber-600 dark:text-amber-400">
-                Direct Figma import is not supported. Take a screenshot of your
-                design or export the artboards as images, then use the Upload
-                tab.
-              </p>
-            )}
-            <OutputSettingsSection stack={stack} setStack={setStack} />
-
-            <Button
-              onClick={takeScreenshot}
-              disabled={isLoading}
-              className="w-full"
-              size="lg"
-              data-testid="url-capture"
-            >
-              {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <svg
-                    className="animate-spin h-4 w-4"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Capturing...
-                </span>
-              ) : (
-                "Capture & Generate"
-              )}
-            </Button>
-          </div>
-
-          <p className="text-xs text-gray-400 dark:text-zinc-500 text-center">
-            Requires ScreenshotOne API key.
-          </p>
-        </div>
+    <div className="w-full space-y-3">
+      <div className="flex gap-2">
+        <Input
+          placeholder="输入网址，如 https://example.com"
+          onChange={(e) => setReferenceUrl(e.target.value)}
+          value={referenceUrl}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !isLoading) takeScreenshot();
+          }}
+          className="flex-1"
+          data-testid="url-input"
+        />
+        <Button
+          onClick={takeScreenshot}
+          disabled={isLoading}
+          size="lg"
+          data-testid="url-capture"
+        >
+          {isLoading ? (
+            <span className="flex items-center gap-2">
+              <svg
+                className="animate-spin h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              访问中...
+            </span>
+          ) : (
+            "生成代码"
+          )}
+        </Button>
       </div>
+      {isFigmaUrl(referenceUrl) && (
+        <p className="text-xs text-amber-600 dark:text-amber-400">
+          Figma URLs are not supported. Export as images and use Upload tab.
+        </p>
+      )}
+      <OutputSettingsSection stack={stack} setStack={setStack} />
     </div>
   );
 }
