@@ -9,6 +9,7 @@ def build_image_prompt_messages(
     stack: Stack,
     text_prompt: str,
     image_generation_enabled: bool,
+    dom_context: str = "",
 ) -> list[ChatCompletionMessageParam]:
     image_policy = build_user_image_policy(image_generation_enabled)
     selected_stack = build_selected_stack_policy(stack)
@@ -36,6 +37,18 @@ If multiple screenshots are provided, organize them meaningfully:
     # Add additional instructions provided by the user
     if text_prompt.strip():
         user_prompt = f"{user_prompt}\n\nAdditional instructions: {text_prompt}"
+
+    # Add DOM context if available (from URL screenshot)
+    if dom_context.strip():
+        user_prompt += f"""
+
+## Page DOM Structure (for reference)
+
+The following is a simplified DOM structure of the original page. Use it to better understand
+the layout, class names, and text content:
+
+{dom_context}
+"""
 
     user_content: list[ChatCompletionContentPartParam] = []
     for image_data_url in image_data_urls:

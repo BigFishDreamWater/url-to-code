@@ -1,12 +1,13 @@
 from typing import List, Literal, TypedDict
 
 
-class UserTurnInput(TypedDict):
+class UserTurnInput(TypedDict, total=False):
     """Normalized current user turn payload from the request."""
 
     text: str
     images: List[str]
     videos: List[str]
+    dom: str
 
 
 class PromptHistoryMessage(TypedDict):

@@ -15,11 +15,13 @@ def build_create_prompt_from_input(
     if input_mode == "image":
         image_urls = prompt.get("images", [])
         text_prompt = prompt.get("text", "")
+        dom_context = prompt.get("dom", "")
         return build_image_prompt_messages(
             image_data_urls=image_urls,
             stack=stack,
             text_prompt=text_prompt,
             image_generation_enabled=image_generation_enabled,
+            dom_context=dom_context,
         )
     if input_mode == "text":
         return build_text_prompt_messages(
