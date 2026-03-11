@@ -3,7 +3,8 @@ import { useProjectStore } from "../../store/project-store";
 import { AppState } from "../../types";
 import { Button } from "../ui/button";
 import { useEffect, useRef, useState, useCallback } from "react";
-import { LuMousePointerClick, LuRefreshCw, LuArrowUp, LuX } from "react-icons/lu";
+import { LuMousePointerClick, LuRefreshCw, LuArrowUp, LuX, LuDownload } from "react-icons/lu";
+import { downloadCode } from "../preview/download";
 import { toast } from "react-hot-toast";
 
 import Variants from "../variants/Variants";
@@ -411,7 +412,20 @@ function Sidebar({
           (appState === AppState.CODE_READY ||
             isSelectedVariantComplete ||
             isSelectedVariantError) && (
-          <div className="flex justify-end mb-3">
+          <div className="flex justify-end gap-2 mb-3">
+            <button
+              onClick={() => {
+                const commit = head && commits[head] ? commits[head] : null;
+                if (commit) {
+                  const code = commit.variants[commit.selectedVariantIndex].code;
+                  downloadCode(code);
+                }
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              <LuDownload className="w-3.5 h-3.5" />
+              Download Code
+            </button>
             <button
               onClick={regenerate}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"

@@ -82,5 +82,6 @@ You are a coding agent that's an expert at building front-ends.
 
 - You can use Google Fonts or other publicly accessible fonts.
 - Except for Ionic, Font Awesome for icons: <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+- All interactive elements (buttons, links, tabs, toggles, dropdowns, etc.) must be real clickable HTML elements (e.g. <button>, <a>, <input>), not just styled divs or spans. They should have appropriate hover/active/focus states so users can interact with them. Links don't need real hrefs (use href="#"), but buttons must respond to clicks with visual feedback (e.g. cursor: pointer, hover effects).
 
 """
