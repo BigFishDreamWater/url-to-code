@@ -85,7 +85,6 @@ function App() {
       openAiApiKey: null,
       openAiBaseURL: null,
       anthropicApiKey: null,
-      screenshotOneApiKey: null,
       isImageGenerationEnabled: true,
       editorTheme: EditorTheme.COBALT,
       generatedCodeConfig: Stack.HTML_TAILWIND,
@@ -460,7 +459,8 @@ function App() {
   function doCreate(
     referenceImages: string[],
     inputMode: "image" | "video",
-    textPrompt: string = ""
+    textPrompt: string = "",
+    dom: string = "",
   ) {
     // Reset any existing state
     reset();
@@ -503,6 +503,7 @@ function App() {
           text: textPrompt,
           images: inputMode === "image" ? media : [],
           videos: inputMode === "video" ? media : [],
+          dom,
         },
         variantHistory,
       });

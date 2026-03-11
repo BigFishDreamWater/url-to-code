@@ -15,7 +15,6 @@ export enum AppTheme {
 export interface Settings {
   openAiApiKey: string | null;
   openAiBaseURL: string | null;
-  screenshotOneApiKey: string | null;
   isImageGenerationEnabled: boolean;
   editorTheme: EditorTheme;
   generatedCodeConfig: Stack;
@@ -50,6 +49,7 @@ export interface PromptContent {
   text: string;
   images: string[]; // Array of data URLs
   videos?: string[]; // Array of data URLs
+  dom?: string; // Simplified DOM structure from URL screenshot
   selectedElementHtml?: string; // Raw HTML of selected element (for display only)
 }
 
