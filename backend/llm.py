@@ -30,6 +30,8 @@ class Llm(Enum):
     GEMINI_3_1_PRO_PREVIEW_HIGH = "gemini-3.1-pro-preview (high thinking)"
     GEMINI_3_1_PRO_PREVIEW_MEDIUM = "gemini-3.1-pro-preview (medium thinking)"
     GEMINI_3_1_PRO_PREVIEW_LOW = "gemini-3.1-pro-preview (low thinking)"
+    # Kimi (via OpenRouter)
+    KIMI_K2 = "moonshotai/kimi-k2"
 
 
 class Completion(TypedDict):
@@ -67,6 +69,8 @@ MODEL_PROVIDER: dict[Llm, str] = {
     Llm.GEMINI_3_1_PRO_PREVIEW_HIGH: "gemini",
     Llm.GEMINI_3_1_PRO_PREVIEW_MEDIUM: "gemini",
     Llm.GEMINI_3_1_PRO_PREVIEW_LOW: "gemini",
+    # Kimi (via OpenRouter, OpenAI-compatible)
+    Llm.KIMI_K2: "openai",
 }
 
 # Convenience sets for membership checks
@@ -104,6 +108,7 @@ OPENAI_MODEL_CONFIG: dict[Llm, dict[str, str]] = {
         "api_name": "gpt-5.4-2026-03-05",
         "reasoning_effort": "xhigh",
     },
+    Llm.KIMI_K2: {"api_name": "moonshotai/kimi-k2"},
 }
 
 
