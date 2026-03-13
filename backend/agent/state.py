@@ -10,6 +10,22 @@ from codegen.utils import extract_html_content
 class AgentFileState:
     path: str = "index.html"
     content: str = ""
+    # Multi-file support for backend code generation
+    files: dict[str, str] | None = None
+
+    def set_file(self, path: str, content: str) -> None:
+        """Add or update a file in multi-file mode."""
+        if self.files is None:
+            self.files = {}
+        self.files[path] = content
+
+    def get_all_files(self) -> dict[str, str]:
+        """Return all files. Falls back to single-file if multi-file not used."""
+        if self.files:
+            return dict(self.files)
+        if self.content:
+            return {self.path: self.content}
+        return {}
 
 
 def ensure_str(value: Any) -> str:

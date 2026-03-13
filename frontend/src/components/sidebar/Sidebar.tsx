@@ -15,6 +15,7 @@ import ImageLightbox from "../ImageLightbox";
 import { Commit } from "../commits/types";
 import { removeHighlight } from "../select-and-edit/utils";
 import { CodeGenerationModel } from "../../lib/models";
+import BackendGenPanel from "../backend-gen/BackendGenPanel";
 
 interface SidebarProps {
   showSelectAndEditFeature: boolean;
@@ -434,6 +435,14 @@ function Sidebar({
               Retry
             </button>
           </div>
+        )}
+
+        {/* Backend generation panel */}
+        {isFirstGeneration &&
+          head === latestCommitHash &&
+          (appState === AppState.CODE_READY ||
+            isSelectedVariantComplete) && (
+          <BackendGenPanel />
         )}
 
         {/* Show cancel button when coding */}

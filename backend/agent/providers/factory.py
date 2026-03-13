@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from anthropic import AsyncAnthropic
 from google import genai
@@ -10,6 +10,7 @@ from agent.providers.base import ProviderSession
 from agent.providers.gemini import GeminiProviderSession, serialize_gemini_tools
 from agent.providers.openai import OpenAIProviderSession, serialize_openai_tools
 from agent.tools import canonical_tool_definitions
+from agent.tools.types import CanonicalToolDefinition
 from llm import ANTHROPIC_MODELS, GEMINI_MODELS, OPENAI_MODELS, Llm
 
 
@@ -21,10 +22,14 @@ def create_provider_session(
     openai_base_url: Optional[str],
     anthropic_api_key: Optional[str],
     gemini_api_key: Optional[str],
+    custom_tools: Optional[List[CanonicalToolDefinition]] = None,
 ) -> ProviderSession:
-    canonical_tools = canonical_tool_definitions(
-        image_generation_enabled=should_generate_images
-    )
+    if custom_tools is not None:
+        canonical_tools = custom_tools
+    else:
+        canonical_tools = canonical_tool_definitions(
+            image_generation_enabled=should_generate_images
+        )
 
     if model in OPENAI_MODELS:
         if not openai_api_key:
