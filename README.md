@@ -8,15 +8,22 @@
 
 ## English
 
-A tool that converts any live website URL into clean, functional frontend code using AI. Enter a URL, and the tool automatically captures a screenshot and extracts the DOM structure via Playwright, then uses LLMs to generate pixel-accurate, interactive code.
+A tool that converts any live website URL into clean, functional frontend code — and now backend code too — using AI. Enter a URL, and the tool automatically captures a full-page screenshot and extracts the DOM structure via Playwright, then uses LLMs to generate pixel-accurate, interactive code.
 
 Forked from [screenshot-to-code](https://github.com/abi/screenshot-to-code) with significant enhancements.
 
 ### Key Features
 
 - **URL-first workflow** — Enter a URL, get code. No need to manually capture screenshots.
+- **Full-page screenshot** — Captures the entire page (not just the first screen), with auto-scrolling to trigger lazy-loaded content.
+- **Original image extraction** — Extracts real image URLs from the page and uses them in generated code instead of placeholders.
 - **Playwright-powered** — Local screenshot capture + DOM extraction, no external API dependencies.
 - **DOM-aware generation** — Extracted DOM structure is passed to the LLM as additional context, improving semantic accuracy.
+- **Backend code generation** — After confirming the frontend, generate a complete backend project with API docs, database schema, and mock data.
+  - Supports Python (Flask), PHP (Laravel), Java (Spring Boot)
+  - LLM recommends the best language based on project complexity
+  - SQLite database with DDL and seed data included
+  - File tree preview with inline code viewer
 - **Multiple input modes** — URL input (primary), image upload, text description, code import.
 - **Interactive output** — Generated buttons, links, and controls are real clickable HTML elements with hover/focus states.
 - **Multi-stack support** — HTML + Tailwind, HTML + CSS, React + Tailwind, Vue + Tailwind, Bootstrap, Ionic + Tailwind, SVG.
@@ -28,14 +35,19 @@ Forked from [screenshot-to-code](https://github.com/abi/screenshot-to-code) with
 ### How It Works
 
 ```
-URL → Playwright (screenshot + DOM extraction) → LLM (image + DOM + prompt) → Generated Code → Live Preview
+URL → Playwright (full-page screenshot + DOM + image extraction) → LLM → Frontend Code → Live Preview
+                                                                                ↓
+                                                              Confirm frontend → Generate API Docs
+                                                                                ↓
+                                                              Select language → Generate Backend Code → File Tree Preview
 ```
 
 1. User enters a website URL
-2. Playwright navigates to the URL, captures a screenshot (1280×800), and extracts a simplified DOM tree
-3. Both the screenshot and DOM structure are sent to the LLM along with the selected code stack
-4. The LLM generates pixel-accurate, interactive frontend code
+2. Playwright navigates to the URL, scrolls to load all content, captures a full-page screenshot, extracts DOM tree and original image URLs
+3. Screenshot, DOM structure, and image URLs are sent to the LLM along with the selected code stack
+4. The LLM generates pixel-accurate, interactive frontend code using original images
 5. The code is displayed with a live preview and code editor
+6. (Optional) User clicks "Generate Backend" to create API documentation and backend code
 
 ### Tech Stack
 
@@ -117,8 +129,11 @@ Access at http://localhost:5173.
 |---|---|---|
 | Primary input | Upload screenshots | Enter URLs |
 | Screenshot engine | ScreenshotOne (external API) | Playwright (local) |
+| Screenshot scope | First screen only | Full page with lazy-load |
 | External API key | ScreenshotOne key required | Not needed |
 | DOM context | Not available | Extracted and passed to LLM |
+| Image handling | Placeholder images | Original page image URLs |
+| Backend generation | Not available | Python/PHP/Java with API docs |
 | UI design | Tab-based | URL-first |
 | Cost | LLM + ScreenshotOne API | LLM API only |
 
@@ -134,15 +149,22 @@ Based on [screenshot-to-code](https://github.com/abi/screenshot-to-code) by [Abi
 
 ## 中文
 
-一个使用 AI 将任意网站 URL 转换为干净、可用的前端代码的工具。输入一个网址，工具会自动通过 Playwright 截图并提取 DOM 结构，然后利用大语言模型生成像素级精确、可交互的代码。
+一个使用 AI 将任意网站 URL 转换为干净、可用的前端代码的工具，现在还支持生成后端代码。输入一个网址，工具会自动通过 Playwright 全页面截图并提取 DOM 结构和原始图片，然后利用大语言模型生成像素级精确、可交互的代码。
 
 基于 [screenshot-to-code](https://github.com/abi/screenshot-to-code) 进行了大量增强改造。
 
 ### 核心特性
 
 - **URL 优先** — 输入网址，直接生成代码，无需手动截图。
+- **全页面截图** — 截取整个页面（不只是第一屏），自动滚动触发懒加载内容。
+- **原始图片提取** — 提取页面真实图片 URL，生成代码时直接使用原图而非占位图。
 - **Playwright 驱动** — 本地截图 + DOM 提取，不依赖外部 API。
 - **DOM 感知生成** — 提取的 DOM 结构作为额外上下文传递给 LLM，提升语义准确性。
+- **后端代码生成** — 确认前端代码后，可一键生成完整后端项目，包含 API 文档、数据库 Schema 和 Mock 数据。
+  - 支持 Python (Flask)、PHP (Laravel)、Java (Spring Boot)
+  - LLM 根据项目复杂度推荐最佳语言
+  - SQLite 数据库，包含 DDL 和种子数据
+  - 文件树预览 + 在线代码查看器
 - **多种输入方式** — URL 输入（主要）、图片上传、文字描述、代码导入。
 - **可交互输出** — 生成的按钮、链接等控件是真实的可点击 HTML 元素，带有 hover/focus 状态。
 - **多技术栈** — HTML + Tailwind、HTML + CSS、React + Tailwind、Vue + Tailwind、Bootstrap、Ionic + Tailwind、SVG。
@@ -154,14 +176,19 @@ Based on [screenshot-to-code](https://github.com/abi/screenshot-to-code) by [Abi
 ### 工作原理
 
 ```
-URL → Playwright（截图 + DOM 提取）→ LLM（图片 + DOM + 提示词）→ 生成代码 → 实时预览
+URL → Playwright（全页面截图 + DOM 提取 + 图片提取）→ LLM → 前端代码 → 实时预览
+                                                                    ↓
+                                                    确认前端 → 生成 API 接口文档
+                                                                    ↓
+                                                    选择语言 → 生成后端代码 → 文件树预览
 ```
 
 1. 用户输入网站 URL
-2. Playwright 访问该 URL，截取页面截图（1280×800），并提取简化的 DOM 树
-3. 截图和 DOM 结构连同选定的技术栈一起发送给 LLM
-4. LLM 生成像素级精确、可交互的前端代码
+2. Playwright 访问该 URL，自动滚动加载全部内容，截取全页面截图，提取 DOM 树和原始图片 URL
+3. 截图、DOM 结构和图片 URL 连同选定的技术栈一起发送给 LLM
+4. LLM 生成像素级精确、可交互的前端代码，使用原始图片
 5. 代码通过实时预览和代码编辑器展示
+6. （可选）用户点击「Generate Backend」生成 API 接口文档和后端代码
 
 ### 技术栈
 
