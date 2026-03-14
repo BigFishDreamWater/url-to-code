@@ -109,8 +109,24 @@ async def capture_screenshot_and_dom(
         # Wait a bit for any animations/lazy loading
         await page.wait_for_timeout(1000)
 
+        # Scroll to bottom to trigger lazy-loaded images, then back to top
+        await page.evaluate("""
+            async () => {
+                const delay = ms => new Promise(r => setTimeout(r, ms));
+                const height = () => document.body.scrollHeight;
+                let prev = 0;
+                while (prev !== height()) {
+                    prev = height();
+                    window.scrollTo(0, prev);
+                    await delay(300);
+                }
+                window.scrollTo(0, 0);
+            }
+        """)
+        await page.wait_for_timeout(500)
+
         # Take screenshot
-        screenshot_bytes = await page.screenshot(full_page=False, type="png")
+        screenshot_bytes = await page.screenshot(full_page=True, type="png")
         base64_image = base64.b64encode(screenshot_bytes).decode("utf-8")
         data_url = f"data:image/png;base64,{base64_image}"
 
