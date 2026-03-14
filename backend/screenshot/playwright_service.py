@@ -101,10 +101,15 @@ async def capture_screenshot_and_dom(
         page = await context.new_page()
 
         try:
-            await page.goto(url, wait_until="networkidle", timeout=30000)
+            await page.goto(url, wait_until="networkidle", timeout=60000)
         except Exception:
-            # Fallback: if networkidle times out, try domcontentloaded
-            await page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            try:
+                # Fallback: if networkidle times out, try domcontentloaded
+                await page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            except Exception:
+                # Last resort: just load whatever we can
+                await page.goto(url, wait_until="commit", timeout=60000)
+                await page.wait_for_timeout(3000)
 
         # Wait a bit for any animations/lazy loading
         await page.wait_for_timeout(1000)
