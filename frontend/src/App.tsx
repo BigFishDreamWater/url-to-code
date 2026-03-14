@@ -430,9 +430,18 @@ function App() {
         // terminal messages, otherwise they remain stuck in "running" state.
         finishInFlightEvents(reason === "request_failed" ? "error" : "complete");
 
+        // If any variant already has code, preserve the results instead of resetting
+        const latestCommit = useProjectStore.getState().commits[commit.hash];
+        const hasCompletedVariant = latestCommit?.variants.some(
+          (v) => v.status === "complete" && v.code
+        );
+        if (hasCompletedVariant) {
+          setAppState(AppState.CODE_READY);
+          return;
+        }
+
         if (reason === "request_failed" && commit.type === "ai_create") {
-          const latestCreateCommit = useProjectStore.getState().commits[commit.hash];
-          latestCreateCommit?.variants.forEach((variant, variantIndex) => {
+          latestCommit?.variants.forEach((variant, variantIndex) => {
             if (variant.status === "generating") {
               updateVariantStatus(
                 commit.hash,
