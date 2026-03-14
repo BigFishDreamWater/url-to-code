@@ -10,6 +10,7 @@ def build_image_prompt_messages(
     text_prompt: str,
     image_generation_enabled: bool,
     dom_context: str = "",
+    page_images: str = "",
 ) -> list[ChatCompletionMessageParam]:
     image_policy = build_user_image_policy(image_generation_enabled)
     selected_stack = build_selected_stack_policy(stack)
@@ -48,6 +49,19 @@ The following is a simplified DOM structure of the original page. Use it to bett
 the layout, class names, and text content:
 
 {dom_context}
+"""
+
+    # Add original page images if available (from URL screenshot)
+    if page_images.strip() and page_images.strip() != "[]":
+        user_prompt += f"""
+
+## Original Page Images
+
+The following are the actual image URLs from the original page. Use these exact URLs in your
+generated code instead of placeholder images. Match each image to its correct position based
+on the screenshot and DOM structure:
+
+{page_images}
 """
 
     user_content: list[ChatCompletionContentPartParam] = []

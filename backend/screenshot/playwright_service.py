@@ -38,6 +38,51 @@ EXTRACT_DOM_JS = """
 """
 
 
+# Image extraction JS — collect all visible image URLs from the page
+EXTRACT_IMAGES_JS = """
+() => {
+    const images = [];
+    const seen = new Set();
+
+    // Collect <img> elements
+    document.querySelectorAll('img').forEach(img => {
+        const src = img.src || img.getAttribute('data-src') || '';
+        if (!src || src.startsWith('data:') || seen.has(src)) return;
+        const rect = img.getBoundingClientRect();
+        if (rect.width < 10 || rect.height < 10) return;
+        seen.add(src);
+        images.push({
+            src: src,
+            alt: (img.alt || '').substring(0, 100),
+            width: Math.round(rect.width),
+            height: Math.round(rect.height),
+        });
+    });
+
+    // Collect CSS background images
+    document.querySelectorAll('*').forEach(el => {
+        const bg = window.getComputedStyle(el).backgroundImage;
+        if (!bg || bg === 'none') return;
+        const match = bg.match(/url\\(["']?(https?:\\/\\/[^"')]+)["']?\\)/);
+        if (!match) return;
+        const src = match[1];
+        if (seen.has(src)) return;
+        const rect = el.getBoundingClientRect();
+        if (rect.width < 10 || rect.height < 10) return;
+        seen.add(src);
+        images.push({
+            src: src,
+            alt: '',
+            width: Math.round(rect.width),
+            height: Math.round(rect.height),
+        });
+    });
+
+    return JSON.stringify(images);
+}
+"""
+
+
 async def capture_screenshot_and_dom(
     url: str,
     viewport_width: int = 1280,
@@ -72,9 +117,13 @@ async def capture_screenshot_and_dom(
         # Extract DOM
         dom_json = await page.evaluate(EXTRACT_DOM_JS)
 
+        # Extract images
+        images_json = await page.evaluate(EXTRACT_IMAGES_JS)
+
         await browser.close()
 
         return {
             "screenshot": data_url,
             "dom": dom_json or "",
+            "images": images_json or "[]",
         }

@@ -34,6 +34,7 @@ class ScreenshotRequest(BaseModel):
 class ScreenshotResponse(BaseModel):
     url: str
     dom: str
+    images: str
 
 
 @router.post("/api/screenshot")
@@ -45,6 +46,7 @@ async def app_screenshot(request: ScreenshotRequest):
         return ScreenshotResponse(
             url=result["screenshot"],
             dom=result["dom"],
+            images=result.get("images", "[]"),
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

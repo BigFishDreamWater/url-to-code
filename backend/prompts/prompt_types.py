@@ -8,6 +8,7 @@ class UserTurnInput(TypedDict, total=False):
     images: List[str]
     videos: List[str]
     dom: str
+    page_images: str
 
 
 class PromptHistoryMessage(TypedDict):

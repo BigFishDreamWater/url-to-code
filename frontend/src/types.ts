@@ -50,6 +50,7 @@ export interface PromptContent {
   images: string[]; // Array of data URLs
   videos?: string[]; // Array of data URLs
   dom?: string; // Simplified DOM structure from URL screenshot
+  pageImages?: string; // JSON array of original page image URLs
   selectedElementHtml?: string; // Raw HTML of selected element (for display only)
 }
 

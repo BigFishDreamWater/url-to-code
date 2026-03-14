@@ -461,6 +461,7 @@ function App() {
     inputMode: "image" | "video",
     textPrompt: string = "",
     dom: string = "",
+    pageImages: string = "",
   ) {
     // Reset any existing state
     reset();
@@ -504,6 +505,7 @@ function App() {
           images: inputMode === "image" ? media : [],
           videos: inputMode === "video" ? media : [],
           dom,
+          pageImages,
         },
         variantHistory,
       });

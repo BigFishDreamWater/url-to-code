@@ -12,6 +12,7 @@ interface Props {
     inputMode: "image" | "video",
     textPrompt?: string,
     dom?: string,
+    pageImages?: string,
   ) => void;
   stack: Stack;
   setStack: (stack: Stack) => void;
@@ -62,7 +63,7 @@ function UrlTab({ doCreate, stack, setStack }: Props) {
       }
 
       const res = await response.json();
-      doCreate([res.url], "image", "", res.dom || "");
+      doCreate([res.url], "image", "", res.dom || "", res.images || "[]");
     } catch (error) {
       console.error(error);
       toast.error(
